@@ -1,0 +1,91 @@
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgres"
+  url      = env("DB_URL")
+}
+
+enum UserRole {
+  ADMIN
+  USER
+}
+
+
+
+model User {
+  id        String   @id @default(uuid())
+  name      String?
+  email     String   @unique
+  image     String?
+  role      UserRole @default(USER)
+  password  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  isVerified                    Boolean   @default(false)
+  verificationToken             String?
+  verificationTokenExpiry       DateTime?
+  forgotPasswordToken           String?
+  forgotPasswordTokenExpiry     DateTime?
+  forgotPasswordEmailisVerified Boolean   @default(false)
+  refreshToken                  String?
+  refreshTokenExpiry            DateTime?
+  reviews     Review[] 
+  books       Book[]
+  orders      Order[]
+  cart        cart?
+}
+
+model Book {
+  id          String   @id @default(uuid())
+  title       String
+  author      String
+  description String?
+  publishedAt DateTime?
+  price       Float
+  image       String?
+  category    String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  userId      String
+  reviews     Review[]
+  user       User     @relation(fields: [userId], references: [id])
+  orders     Order[]  @relation("OrderBooks")
+  carts      cart[]   @relation("CartBooks")
+}
+
+model Review {
+  id        String   @id @default(uuid())
+  content   String
+  rating    Int
+  book      Book     @relation(fields: [bookId], references: [id])
+  bookId    String
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([bookId, userId]) // Ensures a user can only review a book once
+}
+
+model Order {
+  id         String   @id @default(uuid())
+  totalPrice Float
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  user       User     @relation(fields: [userId], references: [id])
+  userId     String
+  books      Book[]   @relation("OrderBooks")
+}
+
+model cart{
+  id        String   @id @default(uuid())
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String   @unique
+  books     Book[]   @relation("CartBooks")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
