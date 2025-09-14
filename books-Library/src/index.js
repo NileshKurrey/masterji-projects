@@ -4,6 +4,8 @@ import dotenv from 'dotenv'
 import cookieParer from 'cookie-parser'
 import UserRoutes from  './routes/Users.routes.js'
 import BookRoutes from './routes/Books.routes.js'
+import ReviewRoutes from './routes/reviews.routes.js'
+import OrderRoutes from './routes/orders.routes.js'
 dotenv.config({
     path:'./.env'
 })
@@ -21,9 +23,11 @@ app.use(cookieParer())
 
 
 //Routes
-
 app.use("/api/v1/user",UserRoutes)
 app.use("/api/v1/book",BookRoutes)
+app.use("/api/v1/review",ReviewRoutes)
+app.use("/api/v1/order",OrderRoutes)
+
 const Port = process.env.PORT ;
 app.listen(Port, () => {
     console.log(`Server is running on port ${Port}`);
